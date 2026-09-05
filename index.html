@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>2 Milhões 2.2 — Portfolio Discovery Lab</title>
+<meta name="theme-color" content="#111827" />
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#0f172a;--txt:#e5e7eb;--muted:#94a3b8;--ok:#34d399;--warn:#fbbf24;--bad:#fb7185;--line:#273449;--accent:#60a5fa}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#0f172a);color:var(--txt)}
+header{position:sticky;top:0;z-index:5;background:rgba(11,16,32,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}h1{font-size:20px;margin:0}header p{margin:5px 0 0;color:var(--muted);font-size:12px}
+main{padding:14px;max-width:1100px;margin:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:rgba(18,26,45,.96);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}h2{font-size:16px;margin:0 0 10px}.muted{color:var(--muted);font-size:13px;line-height:1.45}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.kpi{font-size:26px;font-weight:800}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}button,.btn{appearance:none;border:0;border-radius:11px;padding:11px 14px;font-weight:700;background:#2563eb;color:#fff;cursor:pointer}button.secondary{background:#334155}button.danger{background:#9f1239}button:disabled{opacity:.45;cursor:not-allowed}input,select,textarea{width:100%;background:#0b1222;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;margin:5px 0 10px}label{display:block;color:#cbd5e1;font-size:12px;font-weight:700}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#1e293b;font-size:12px;margin:2px}.status{font-weight:900;letter-spacing:.04em}.status.no{color:var(--bad)}.status.yes{color:var(--ok)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}.log{height:220px;overflow:auto;background:#080d18;border:1px solid var(--line);border-radius:10px;padding:9px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;white-space:pre-wrap}.small{font-size:11px}.sep{height:1px;background:var(--line);margin:12px 0}.game{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;margin:3px 0}.tag{font-size:10px;background:#172554;border:1px solid #1d4ed8;border-radius:6px;padding:2px 5px}.foot{padding:20px 4px 40px;color:var(--muted);font-size:11px;line-height:1.45}
+</style>
+</head>
+<body>
+<header><h1>2 Milhões 2.2 — Portfolio Discovery Lab</h1><p>Lotofácil • OOS-first • random de mesmo orçamento • NO BET por padrão</p></header>
+<main>
+  <div class="grid">
+    <section class="card">
+      <h2>Estado científico</h2>
+      <div class="row"><span class="pill">2.1: 4/4 DROP</span><span class="pill">Canary OK</span><span class="pill">Prospective freeze</span></div>
+      <div class="sep"></div>
+      <div class="muted">Decisão atual</div><div id="betStatus" class="kpi status no">NO BET</div>
+      <div id="gateReason" class="muted">Nenhum candidato 2.2 foi aprovado contra controles aleatórios equivalentes.</div>
+    </section>
+
+    <section class="card">
+      <h2>Histórico</h2>
+      <div class="row"><div><div class="muted">Concursos carregados</div><div class="kpi" id="histCount">0</div></div><div><div class="muted">Último concurso</div><div class="kpi" id="lastDraw">—</div></div></div>
+      <label>Importar histórico JSON/CSV</label><input id="fileIn" type="file" accept=".json,.csv,.txt" />
+      <div class="row"><button id="sampleBtn" class="secondary">Carregar amostra</button><button id="clearBtn" class="danger">Limpar</button></div>
+      <p class="muted small">JSON aceito: array de objetos com <b>concurso</b> e <b>dezenas</b> (15 números), ou array simples de arrays. CSV: concurso seguido das 15 dezenas.</p>
+    </section>
+
+    <section class="card">
+      <h2>Configuração do Tournament 2.2</h2>
+      <label>Jogos simples por portfólio</label><input id="portfolioSize" type="number" min="5" max="100" value="20" />
+      <label>Janela OOS</label><input id="windowSize" type="number" min="50" max="1500" value="300" />
+      <label>Controles aleatórios por concurso</label><input id="randomControls" type="number" min="10" max="1000" value="100" />
+      <label>Seed reproduzível</label><input id="seed" type="number" value="22092026" />
+      <div class="row"><button id="runBtn">Executar Tournament 2.2</button></div>
+      <p class="muted small">Primária: frequência de portfólios com ≥1 jogo de 13+. Secundárias: 14+, 15 e multiplicidade. Promoção exige superar random de mesmo orçamento com estabilidade.</p>
+    </section>
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <section class="card">
+      <h2>Motores 2.2</h2>
+      <div><span class="tag">A</span> Adaptive Coverage Optimizer</div><p class="muted">Hill-climb sobre portfólios de 15 dezenas, maximizando cobertura e reduzindo colisões internas.</p>
+      <div><span class="tag">B</span> Counterfactual Portfolio Search</div><p class="muted">Compara cada candidato contra portfólios aleatórios com o mesmo número de apostas.</p>
+      <div><span class="tag">C</span> Diversity / Anti-Collision</div><p class="muted">Penaliza pares de jogos com interseção excessiva para espalhar o orçamento.</p>
+      <div><span class="tag">D</span> Regime-Robust Ensemble</div><p class="muted">Mistura geradores e exige persistência em sub-janelas temporais.</p>
+      <div><span class="tag">E</span> Shadow Champion</div><p class="muted">Random acompanha permanentemente o campeão; perda de vantagem retorna a NO BET.</p>
+    </section>
+
+    <section class="card">
+      <h2>Resultado</h2>
+      <table><thead><tr><th>Métrica</th><th>Candidato</th><th>Random</th><th>Δ</th></tr></thead><tbody id="resultBody">
+        <tr><td>13+ portfólio</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>14+ portfólio</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>15</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody></table>
+      <div class="sep"></div><div id="decision" class="muted">Aguardando teste.</div>
+    </section>
+
+    <section class="card">
+      <h2>Portfólio candidato</h2><div id="portfolio" class="muted">Ainda não gerado.</div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:12px"><h2>Evidence Ledger</h2><div id="log" class="log">2 Milhões 2.2 iniciado. NO BET preservado.\n</div><div class="row" style="margin-top:10px"><button id="exportBtn" class="secondary">Exportar ledger</button></div></section>
+  <div class="foot">Este laboratório não prevê sorteios e não presume que existam padrões exploráveis. O objetivo é testar se a organização do mesmo orçamento consegue superar controles aleatórios fora da amostra. Até prova estatística reproduzível em contrário, a decisão permanece NO BET.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let HISTORY=[]; let LAST_RESULT=null; let LAST_PORTFOLIO=[];
+function log(s){const t=new Date().toISOString(); $('log').textContent += `[${t}] ${s}\n`; $('log').scrollTop=$('log').scrollHeight;}
+function save(){localStorage.setItem('2m_22_history',JSON.stringify(HISTORY)); if(LAST_RESULT)localStorage.setItem('2m_22_result',JSON.stringify(LAST_RESULT));}
+function load(){try{HISTORY=JSON.parse(localStorage.getItem('2m_22_history')||'[]')}catch{}; renderHistory();}
+function renderHistory(){HISTORY.sort((a,b)=>a.concurso-b.concurso); $('histCount').textContent=HISTORY.length; $('lastDraw').textContent=HISTORY.length?HISTORY.at(-1).concurso:'—';}
+function normalize(nums){return [...new Set(nums.map(Number).filter(n=>n>=1&&n<=25))].sort((a,b)=>a-b)}
+function parseText(txt,name){
+  let rows=[];
+  if(name.toLowerCase().endsWith('.json')){
+    const d=JSON.parse(txt);
+    if(Array.isArray(d)) rows=d.map((x,i)=>Array.isArray(x)?{concurso:i+1,dezenas:normalize(x)}:{concurso:Number(x.concurso||x.numero||x.draw||i+1),dezenas:normalize(x.dezenas||x.numeros||x.bolas||[])});
+    else if(Array.isArray(d.concursos)) rows=d.concursos.map((x,i)=>({concurso:Number(x.concurso||x.numero||i+1),dezenas:normalize(x.dezenas||x.numeros||[])}));
+  } else {
+    const lines=txt.split(/\r?\n/).filter(Boolean); rows=lines.map((ln,i)=>{const nums=(ln.match(/\d+/g)||[]).map(Number); if(nums.length>=16)return {concurso:nums[0],dezenas:normalize(nums.slice(1,16))}; if(nums.length>=15)return {concurso:i+1,dezenas:normalize(nums.slice(0,15))}; return null}).filter(Boolean)
+  }
+  rows=rows.filter(r=>Number.isFinite(r.concurso)&&r.dezenas.length===15);
+  if(!rows.length) throw new Error('Nenhum concurso válido encontrado'); return rows;
+}
+$('fileIn').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f)return; try{HISTORY=parseText(await f.text(),f.name); save(); renderHistory(); log(`Histórico importado: ${HISTORY.length} concursos.`)}catch(err){alert(err.message);log('Falha na importação: '+err.message)}});
+$('clearBtn').onclick=()=>{if(confirm('Limpar histórico e resultados locais?')){HISTORY=[];LAST_RESULT=null;LAST_PORTFOLIO=[];localStorage.removeItem('2m_22_history');localStorage.removeItem('2m_22_result');renderHistory();$('portfolio').textContent='Ainda não gerado.';log('Dados locais limpos.')}};
+$('sampleBtn').onclick=()=>{HISTORY=[];let rng=mulberry32(12345);for(let c=1;c<=500;c++)HISTORY.push({concurso:c,dezenas:randomGame(rng)});save();renderHistory();log('Amostra sintética de 500 concursos carregada. Serve apenas para testar o funcionamento do app.')};
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
+function randomGame(rng){let a=Array.from({length:25},(_,i)=>i+1);for(let i=a.length-1;i>0;i--){let j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,15).sort((x,y)=>x-y)}
+function inter(a,b){let s=new Set(a),n=0;for(const x of b)if(s.has(x))n++;return n}
+function hits(game,draw){return inter(game,draw)}
+function portfolioScore(p){let pair=0;for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){let k=inter(p[i],p[j]);pair+=Math.max(0,k-9)**2}let freq=Array(26).fill(0);p.flat().forEach(n=>freq[n]++);let mean=p.length*15/25,imb=0;for(let n=1;n<=25;n++)imb+=(freq[n]-mean)**2;return -(pair*3+imb)}
+function optimizePortfolio(size,rng,steps=3000){let p=Array.from({length:size},()=>randomGame(rng)),best=portfolioScore(p);for(let s=0;s<steps;s++){let i=Math.floor(rng()*size),old=p[i],ng=randomGame(rng);p[i]=ng;let sc=portfolioScore(p);if(sc>=best){best=sc}else p[i]=old}return p}
+function ensemblePortfolio(size,rng){let p=optimizePortfolio(size,rng,Math.max(1000,size*120)); // add frequency balancing perturbations
+  for(let t=0;t<size*4;t++){let freq=Array(26).fill(0);p.flat().forEach(n=>freq[n]++);let over=[...Array(25)].map((_,i)=>i+1).sort((a,b)=>freq[b]-freq[a]);let under=[...over].reverse();let i=Math.floor(rng()*size),g=[...p[i]],oi=g.findIndex(n=>over.slice(0,5).includes(n));let u=under.find(n=>!g.includes(n));if(oi>=0&&u){let ng=[...g];ng[oi]=u;ng.sort((a,b)=>a-b);let old=p[i],bs=portfolioScore(p);p[i]=ng;if(portfolioScore(p)<bs)p[i]=old}}
+  return p
+}
+function evalPortfolio(p,draw){let mx=0,c13=0,c14=0,c15=0;for(const g of p){let h=hits(g,draw);mx=Math.max(mx,h);if(h>=13)c13++;if(h>=14)c14++;if(h===15)c15++}return {mx,c13,c14,c15}}
+function pct(x){return (100*x).toFixed(3)+'%'}
+function runTournament(){
+  if(HISTORY.length<80){alert('Importe pelo menos 80 concursos reais para um teste útil.');return}
+  const size=Math.max(5,Math.min(100,+$('portfolioSize').value||20)); const win=Math.min(HISTORY.length,Math.max(50,+$('windowSize').value||300)); const rc=Math.max(10,Math.min(1000,+$('randomControls').value||100)); const seed=+$('seed').value||22092026; const rng=mulberry32(seed);
+  log(`Tournament 2.2 iniciado: size=${size}, janela=${win}, random=${rc}, seed=${seed}.`);
+  const slice=HISTORY.slice(-win); let cand13=0,cand14=0,cand15=0,rand13=0,rand14=0,rand15=0,randN=0; let sub=[0,0,0];
+  // Prospective-like rolling generation: candidate generated without seeing current draw. This implementation uses design-only coverage, not outcome-derived features.
+  for(let idx=0;idx<slice.length;idx++){
+    const p=ensemblePortfolio(size,rng); const e=evalPortfolio(p,slice[idx].dezenas); cand13+=e.c13>0; cand14+=e.c14>0; cand15+=e.c15>0;
+    let third=Math.min(2,Math.floor(idx/(slice.length/3))); sub[third]+=e.c13>0?1:0;
+    for(let r=0;r<rc;r++){let rp=Array.from({length:size},()=>randomGame(rng));let q=evalPortfolio(rp,slice[idx].dezenas);rand13+=q.c13>0;rand14+=q.c14>0;rand15+=q.c15>0;randN++}
+  }
+  const a13=cand13/slice.length,a14=cand14/slice.length,a15=cand15/slice.length;const r13=rand13/randN,r14=rand14/randN,r15=rand15/randN;const delta=a13-r13;
+  // Conservative gate: positive 13+ delta, simple z > 2, and candidate 13+ in all thirds not catastrophically below expected random.
+  const se=Math.sqrt(Math.max(1e-12,r13*(1-r13)/slice.length)); const z=delta/se; const thirds=sub.map((x,i)=>x/(i<2?Math.floor(slice.length/3):slice.length-2*Math.floor(slice.length/3))); const robust=thirds.every(x=>x>=r13*0.9); const pass=(delta>0 && z>=2 && robust && a14>=r14*0.9);
+  LAST_RESULT={ts:new Date().toISOString(),size,win,rc,seed,a13,a14,a15,r13,r14,r15,delta,z,thirds,pass};
+  LAST_PORTFOLIO=ensemblePortfolio(size,mulberry32(seed^0x9e3779b9));save();renderResult();
+  log(`Resultado: cand13=${pct(a13)} random13=${pct(r13)} Δ=${pct(delta)} z=${z.toFixed(2)} robust=${robust} -> ${pass?'PASS experimental':'DROP'}.`);
+}
+$('runBtn').onclick=()=>setTimeout(runTournament,30);
+function renderResult(){if(!LAST_RESULT)return;let x=LAST_RESULT; $('resultBody').innerHTML=`<tr><td>13+ portfólio</td><td>${pct(x.a13)}</td><td>${pct(x.r13)}</td><td>${pct(x.a13-x.r13)}</td></tr><tr><td>14+ portfólio</td><td>${pct(x.a14)}</td><td>${pct(x.r14)}</td><td>${pct(x.a14-x.r14)}</td></tr><tr><td>15</td><td>${pct(x.a15)}</td><td>${pct(x.r15)}</td><td>${pct(x.a15-x.r15)}</td></tr>`;
+  const bet=$('betStatus'),reason=$('gateReason'); if(x.pass){bet.textContent='HOLD — VALIDAR PROSPECTIVO';bet.className='kpi status warn';reason.textContent='Sinal experimental detectado. Ainda NÃO liberar aposta: exige confirmação prospectiva congelada em concursos futuros.';$('decision').innerHTML=`<b class="warn">PASS experimental, sem promoção para BET.</b> z=${x.z.toFixed(2)}; terços 13+: ${x.thirds.map(pct).join(' / ')}.`}else{bet.textContent='NO BET';bet.className='kpi status no';reason.textContent='Candidato não demonstrou vantagem robusta suficiente sobre random de mesmo orçamento.';$('decision').innerHTML=`<b class="bad">DROP.</b> z=${x.z.toFixed(2)}; terços 13+: ${x.thirds.map(pct).join(' / ')}.`}
+  $('portfolio').innerHTML=LAST_PORTFOLIO.map((g,i)=>`<div class="game">${String(i+1).padStart(2,'0')}. ${g.map(n=>String(n).padStart(2,'0')).join(' ')}</div>`).join('')
+}
+$('exportBtn').onclick=()=>{const out={app:'2 Milhões 2.2 — Portfolio Discovery Lab',history_count:HISTORY.length,last_result:LAST_RESULT,portfolio:LAST_PORTFOLIO,ledger:$('log').textContent};const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='2_Milhoes_2.2_Evidence_Ledger.json';a.click();URL.revokeObjectURL(a.href)};
+load();try{LAST_RESULT=JSON.parse(localStorage.getItem('2m_22_result')||'null');if(LAST_RESULT)renderResult()}catch{}
+</script>
+</body></html>

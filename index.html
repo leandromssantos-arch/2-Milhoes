@@ -29,7 +29,7 @@ main{padding:14px;max-width:1100px;margin:auto}.grid{display:grid;grid-template-
       <div class="row"><div><div class="muted">Concursos carregados</div><div class="kpi" id="histCount">0</div></div><div><div class="muted">Último concurso</div><div class="kpi" id="lastDraw">—</div></div></div>
       <label>Importar histórico JSON/CSV</label><input id="fileIn" type="file" accept=".json,.csv,.txt" />
       <div class="row"><button id="sampleBtn" class="secondary">Carregar amostra</button><button id="clearBtn" class="danger">Limpar</button></div>
-      <p class="muted small">JSON aceito: array de objetos com <b>concurso</b> e <b>dezenas</b> (15 números), ou array simples de arrays. CSV: concurso seguido das 15 dezenas.</p>
+      <p class="muted small">JSON aceito: exportações anteriores do 2 Milhões (<b>history</b>), array de objetos com <b>concurso/numero</b> e <b>dezenas</b> (15 números), ou array simples de arrays. CSV: concurso seguido das 15 dezenas.</p>
     </section>
 
     <section class="card">
@@ -84,7 +84,8 @@ function parseText(txt,name){
   if(name.toLowerCase().endsWith('.json')){
     const d=JSON.parse(txt);
     if(Array.isArray(d)) rows=d.map((x,i)=>Array.isArray(x)?{concurso:i+1,dezenas:normalize(x)}:{concurso:Number(x.concurso||x.numero||x.draw||i+1),dezenas:normalize(x.dezenas||x.numeros||x.bolas||[])});
-    else if(Array.isArray(d.concursos)) rows=d.concursos.map((x,i)=>({concurso:Number(x.concurso||x.numero||i+1),dezenas:normalize(x.dezenas||x.numeros||[])}));
+    else if(Array.isArray(d.history)) rows=d.history.map((x,i)=>({concurso:Number(x.concurso||x.numero||x.draw||i+1),dezenas:normalize(x.dezenas||x.listaDezenas||x.numeros||x.bolas||[])}));
+    else if(Array.isArray(d.concursos)) rows=d.concursos.map((x,i)=>({concurso:Number(x.concurso||x.numero||i+1),dezenas:normalize(x.dezenas||x.listaDezenas||x.numeros||[])}));
   } else {
     const lines=txt.split(/\r?\n/).filter(Boolean); rows=lines.map((ln,i)=>{const nums=(ln.match(/\d+/g)||[]).map(Number); if(nums.length>=16)return {concurso:nums[0],dezenas:normalize(nums.slice(1,16))}; if(nums.length>=15)return {concurso:i+1,dezenas:normalize(nums.slice(0,15))}; return null}).filter(Boolean)
   }

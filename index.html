@@ -1,107 +1,30 @@
-<!doctype html>
-<html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>2 Milhões 2.6 — Focused Robust Swarm</title>
-<meta name="theme-color" content="#08111f">
-<style>
-:root{--bg:#08111f;--p:#101c30;--l:#273852;--t:#eef2ff;--m:#9eafc5;--b:#3478f6;--g:#32d296;--y:#f7c948;--r:#ff6b81}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(#08111f,#0b1423);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-header{position:sticky;top:0;z-index:9;background:#08111ff2;border-bottom:1px solid var(--l);padding:15px}h1{font-size:20px;margin:0}header p,.muted{color:var(--m);font-size:12px;line-height:1.45}
-main{max-width:1050px;margin:auto;padding:14px 14px 50px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:var(--p);border:1px solid var(--l);border-radius:16px;padding:14px;margin-bottom:12px}
-h2{font-size:16px;margin:0 0 10px}.kpi{font-size:26px;font-weight:900}.bad{color:var(--r)}.warn{color:var(--y)}.ok{color:var(--g)}
-input{width:100%;background:#091321;color:var(--t);border:1px solid var(--l);border-radius:10px;padding:10px;margin:5px 0 10px}
-button{border:0;border-radius:11px;padding:11px 13px;background:var(--b);color:white;font-weight:800;margin:3px}button.secondary{background:#334155}button.danger{background:#9f1239}button:disabled{opacity:.45}
-.bar{height:14px;background:#07101d;border:1px solid var(--l);border-radius:999px;overflow:hidden}.fill{height:100%;width:0;background:#3478f6;transition:width .15s}
-.pill,.tag{display:inline-block;background:#16253c;border:1px solid #36517a;padding:4px 7px;border-radius:999px;font-size:10px;margin:2px}
-table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:6px 4px;border-bottom:1px solid var(--l);text-align:right}th:first-child,td:first-child{text-align:left}
-.log{height:210px;overflow:auto;background:#060c16;border:1px solid var(--l);border-radius:10px;padding:9px;font-family:monospace;font-size:10px;white-space:pre-wrap}
-</style></head><body>
-<header><h1>2 Milhões 2.6 — Focused Robust Swarm</h1><p>Lotofácil • foco em M10/C2 • replicação multi-seed • ablação • walk-forward • 13+ primário • NO BET</p></header>
-<main>
-<div class="grid">
-<section class="card"><h2>Estado científico</h2><span class="pill">2.1 DROP</span><span class="pill">2.2 DROP</span><span class="pill">2.4 ALL DROP</span><span class="pill">M10/C2 sinal de pesquisa</span>
-<div class="muted" style="margin-top:8px">Decisão</div><div id="status" class="kpi bad">NO BET</div><div id="reason" class="muted">Nenhum sinal 2.4 foi promovido.</div></section>
-<section class="card"><h2>Histórico</h2><div><span class="muted">Concursos</span> <b id="count" class="kpi">0</b> &nbsp; <span class="muted">Último</span> <b id="last" class="kpi">—</b></div>
-<input id="file" type="file" accept=".json,.csv,.txt"><button id="clear" class="danger">Limpar</button></section>
-<section class="card"><h2>Configuração</h2>
-<label>Jogos por portfólio</label><input id="games" type="number" value="20" min="10" max="40">
-<label>Randoms por concurso</label><input id="randoms" type="number" value="30" min="20" max="80">
-<label>Seed-base</label><input id="seed" type="number" value="26092026">
-<button id="run">Executar 2.6</button><button id="stop" class="secondary" disabled>Parar</button>
-<p class="muted">Replicação automática em 4 seeds derivadas. O mesmo candidato precisa manter sinal em múltiplas seeds.</p></section>
-</div>
-
-<section class="card"><h2>Progresso</h2><div id="phase" class="muted">Aguardando.</div><div class="bar"><div id="fill" class="fill"></div></div><div id="prog" class="muted">0%</div></section>
-
-<div class="grid">
-<section class="card"><h2>Candidatos focados</h2>
-<div><span class="tag">R1</span>M10 Robust Monte-Carlo</div>
-<div><span class="tag">R2</span>M10 + Diversity Penalty</div>
-<div><span class="tag">R3</span>C2 OOS Council</div>
-<div><span class="tag">R4</span>C2 sem M5 (ablação)</div>
-<div><span class="tag">R5</span>C2 sem M6 (ablação)</div>
-<div><span class="tag">R6</span>M10 × C2 Cooperative Blend</div>
-<div><span class="tag">CTRL</span>Random-equivalent Shadow</div>
-<p class="muted">A 2.6 não amplia o número de motores. Ela testa especificamente se os sinais M10/C2 da 2.4 são reais, replicáveis e independentes de um componente isolado.</p></section>
-<section class="card"><h2>Gates</h2>
-<p class="muted"><b>Gate 1 — 150:</b> elimina Δ13+ ≤ 0.</p>
-<p class="muted"><b>Gate 2 — 300:</b> exige Δ13+ positivo em pelo menos 3/4 seeds.</p>
-<p class="muted"><b>Gate 3 — 600:</b> teste pareado agregado + Holm entre sobreviventes.</p>
-<p class="muted"><b>Gate 4:</b> sobrevivente histórico = HOLD, nunca BET.</p></section>
-<section class="card"><h2>Diagnóstico de ablação</h2>
-<div id="ablation" class="muted">Será mostrado se M5/M6 ajudam ou apenas carregam ruído dentro do C2.</div></section>
-</div>
-
-<section class="card"><h2>Leaderboard 2.6</h2><div style="overflow:auto"><table><thead><tr><th>ID</th><th>Gate</th><th>Seeds +</th><th>Cand.13+</th><th>Rnd.13+</th><th>Δ pp</th><th>p</th><th>Status</th></tr></thead><tbody id="body"><tr><td colspan="8" style="text-align:left">Aguardando.</td></tr></tbody></table></div></section>
-<section class="card"><h2>Evidence Ledger</h2><div id="log" class="log">2 Milhões 2.6 iniciado. NO BET preservado.\n</div><button id="export" class="secondary">Exportar ledger</button></section>
-</main>
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2 Milhões 2.7 — R6 Falsification Lab</title>
+<style>body{margin:0;background:#08111f;color:#eef2ff;font-family:-apple-system,Arial}header,main{padding:18px}header{border-bottom:1px solid #29405f}h1{font-size:23px}.card{background:#101c30;border:1px solid #29405f;border-radius:18px;padding:18px;margin:14px 0}.muted{color:#a6b4c8}.bad{color:#ff6680;font-size:32px;font-weight:900}.pill{display:inline-block;border:1px solid #36517a;border-radius:20px;padding:5px 9px;margin:2px;font-size:12px}input{width:100%;box-sizing:border-box;padding:13px;margin:8px 0;background:#091321;color:white;border:1px solid #29405f;border-radius:12px}button{padding:13px;border:0;border-radius:12px;background:#3478f6;color:white;font-weight:800;margin:4px}.bar{height:15px;background:#07101d;border-radius:10px;overflow:hidden}.fill{height:100%;width:0;background:#3478f6}.log{height:210px;overflow:auto;background:#050b14;padding:10px;border-radius:10px;white-space:pre-wrap;font:11px monospace}table{width:100%;font-size:11px;border-collapse:collapse}td,th{padding:7px;border-bottom:1px solid #29405f;text-align:right}td:first-child,th:first-child{text-align:left}</style>
+<header><h1>2 Milhões 2.7 — R6 Replication & Falsification Lab</h1><div class="muted">R6 congelado • 8 seeds • 3 blocos temporais • matched random • 13+ primário • NO BET</div></header><main>
+<div class="card"><span class="pill">2.6 ALL DROP</span><span class="pill">R6 +0,757 pp • 4/4 seeds</span><p>Decisão</p><div id="status" class="bad">NO BET</div><div id="reason" class="muted">R6 é hipótese de pesquisa congelada.</div></div>
+<div class="card"><h2>Histórico</h2><b id="count">0</b> concursos • último <b id="last">—</b><input id="file" type="file" accept=".json,.csv,.txt"></div>
+<div class="card"><h2>Protocolo pré-fixado</h2><p class="muted">R6 precisa: Δ13+ &gt; 0; ≥6/8 seeds positivas; ≥2/3 blocos positivos; p&lt;0,05. PASS histórico = HOLD, nunca BET.</p>
+<label>Jogos</label><input id="games" type="number" value="20"><label>Randoms equivalentes</label><input id="randoms" type="number" value="40"><label>Seed-base</label><input id="seed" type="number" value="27092026"><button id="run">Executar falsificação</button><button id="stop" disabled>Parar</button></div>
+<div class="card"><h2>Progresso</h2><div id="phase" class="muted">Aguardando.</div><div class="bar"><div id="fill" class="fill"></div></div><div id="pct">0%</div></div>
+<div class="card"><h2>Resultado</h2><table><thead><tr><th>Teste</th><th>Cand.</th><th>Random</th><th>Δ pp</th><th>Seeds+</th><th>Blocos+</th><th>p</th></tr></thead><tbody id="res"><tr><td colspan="7">Aguardando</td></tr></tbody></table><p id="blocks" class="muted"></p></div>
+<div class="card"><h2>Evidence Ledger</h2><div id="log" class="log">2.7 iniciado. R6 congelado. NO BET preservado.\n</div><button id="export">Exportar ledger</button></div>
 <script>
-const $=x=>document.getElementById(x);let H=[],STATE=null,ABORT=false,CACHE=new Map();
-function log(s){$('log').textContent+='['+new Date().toISOString()+'] '+s+'\n';$('log').scrollTop=$('log').scrollHeight}
-function yieldUI(){return new Promise(r=>setTimeout(r,0))}
-function progress(done,total,phase){let q=Math.round(100*done/total);$('fill').style.width=q+'%';$('prog').textContent=q+'%';$('phase').textContent=phase}
-function uniq(a){return [...new Set((a||[]).map(Number).filter(n=>n>=1&&n<=25))].sort((a,b)=>a-b)}
-function parse(txt,name){let rows=[];if(name.toLowerCase().endsWith('.json')){let d=JSON.parse(txt),src=Array.isArray(d)?d:(d.history||d.concursos||[]);rows=src.map((x,i)=>Array.isArray(x)?{concurso:i+1,dezenas:uniq(x)}:{concurso:Number(x.concurso||x.numero||i+1),dezenas:uniq(x.dezenas||x.listaDezenas||x.numeros||[])})}else{rows=txt.split(/\r?\n/).filter(Boolean).map((r,i)=>{let n=(r.match(/\d+/g)||[]).map(Number);return n.length>=16?{concurso:n[0],dezenas:uniq(n.slice(1,16))}:n.length>=15?{concurso:i+1,dezenas:uniq(n.slice(0,15))}:null}).filter(Boolean)}rows=rows.filter(r=>Number.isFinite(r.concurso)&&r.dezenas.length===15);if(!rows.length)throw Error('Nenhum concurso válido');return rows.sort((a,b)=>a.concurso-b.concurso)}
-function render(){ $('count').textContent=H.length;$('last').textContent=H.length?H.at(-1).concurso:'—'}
-$('file').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{H=parse(await f.text(),f.name);localStorage.setItem('2m26_hist',JSON.stringify(H));CACHE.clear();render();log('Histórico importado: '+H.length)}catch(e){alert(e.message)}}
-$('clear').onclick=()=>{if(confirm('Limpar dados da 2.6?')){H=[];STATE=null;CACHE.clear();localStorage.removeItem('2m26_hist');localStorage.removeItem('2m26_state');render();log('Dados limpos.')}}
-
-function rng(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
-function mix(s,a,b){let x=(s>>>0)^Math.imul((a||1)>>>0,0x9e3779b1)^Math.imul((b||1)>>>0,0x85ebca6b);x^=x>>>16;x=Math.imul(x,0x7feb352d);x^=x>>>15;x=Math.imul(x,0x846ca68b);x^=x>>>16;return x>>>0}
+const $=x=>document.getElementById(x);let H=[],STOP=false,STATE=null,C=new Map();
+function L(s){$('log').textContent+='['+new Date().toISOString()+'] '+s+'\n';$('log').scrollTop=999999}function Y(){return new Promise(r=>setTimeout(r,0))}
+function U(a){return [...new Set((a||[]).map(Number).filter(n=>n>0&&n<26))].sort((a,b)=>a-b)}
+function parse(t,n){let R=[];if(n.endsWith('.json')){let d=JSON.parse(t),s=Array.isArray(d)?d:(d.history||d.concursos||[]);R=s.map((x,i)=>Array.isArray(x)?{concurso:i+1,dezenas:U(x)}:{concurso:+(x.concurso||x.numero||i+1),dezenas:U(x.dezenas||x.listaDezenas||x.numeros)})}else R=t.split(/\r?\n/).map((r,i)=>{let a=(r.match(/\d+/g)||[]).map(Number);return a.length>=16?{concurso:a[0],dezenas:U(a.slice(1,16))}:a.length>=15?{concurso:i+1,dezenas:U(a.slice(0,15))}:null}).filter(Boolean);R=R.filter(x=>x.dezenas.length===15);if(!R.length)throw Error('Nenhum concurso válido');return R.sort((a,b)=>a.concurso-b.concurso)}
+$('file').onchange=async e=>{try{let f=e.target.files[0];H=parse(await f.text(),f.name.toLowerCase());localStorage.setItem('2m27h',JSON.stringify(H));render();L('Histórico importado: '+H.length)}catch(e){alert(e.message)}};function render(){$('count').textContent=H.length;$('last').textContent=H.length?H.at(-1).concurso:'—'}
+function rng(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}function mix(s,a,b){let x=s^Math.imul(a||1,2654435761)^Math.imul(b||1,2246822519);x^=x>>>16;return x>>>0}
 function game(r){let a=Array.from({length:25},(_,i)=>i+1);for(let i=24;i;i--){let j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,15).sort((a,b)=>a-b)}
-function hit(a,b){let s=new Set(a),n=0;for(let x of b)if(s.has(x))n++;return n}
-function evalP(P,d){for(let g of P)if(hit(g,d)>=13)return 1;return 0}
-function pen(P){let f=Array(26).fill(0),q=0;for(let g of P)for(let n of g)f[n]++;for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)q+=Math.max(0,hit(P[i],P[j])-9)**2*2;let m=P.length*15/25;for(let n=1;n<=25;n++)q+=(f[n]-m)**2*.5;return q}
-function div(P,r,steps=120){let s=pen(P);for(let z=0;z<steps;z++){let i=Math.floor(r()*P.length),o=P[i],g=game(r);P[i]=g;let ns=pen(P);if(ns<=s)s=ns;else P[i]=o}return P}
-function stats(idx){if(CACHE.has(idx))return CACHE.get(idx);let f60=Array(26).fill(0),f180=Array(26).fill(0),f600=Array(26).fill(0);for(let j=Math.max(0,idx-600);j<idx;j++)for(let n of H[j].dezenas){if(j>=idx-60)f60[n]++;if(j>=idx-180)f180[n]++;f600[n]++}let o={f60,f180,f600,n60:Math.min(60,idx),n180:Math.min(180,idx),n600:Math.min(600,idx)};CACHE.set(idx,o);return o}
-function wg(w,r){let a=[];for(let n=1;n<=25;n++){let u=Math.max(1e-9,r());a.push([Math.log(w[n])-Math.log(-Math.log(u)),n])}return a.sort((x,y)=>y[0]-x[0]).slice(0,15).map(x=>x[1]).sort((a,b)=>a-b)}
-function m10(sz,r,extra=0){let best=null,bs=1e99;for(let t=0;t<16;t++){let P=Array.from({length:sz},()=>game(r)),s=pen(P)+extra*pen(div([...P],r,30));if(s<bs){bs=s;best=P}}return div(best,r,220)}
-function m5(sz,idx,r){let S=stats(idx),w=Array(26).fill(1);for(let n=1;n<=25;n++){let b=S.n180?S.f180[n]/S.n180:.6,rr=b-.6;w[n]=Math.exp(Math.max(-.30,Math.min(.30,rr/.08*.14)))}return div(Array.from({length:sz},()=>wg(w,r)),r,80)}
-function m6(sz,idx,r){let S=stats(idx),w=Array(26).fill(1);for(let n=1;n<=25;n++){let a=S.n60?S.f60[n]/S.n60:.6,b=S.n180?S.f180[n]/S.n180:.6,c=S.n600?S.f600[n]/S.n600:.6,rr=.5*(a-.6)+.3*(b-.6)+.2*(c-.6);w[n]=Math.exp(Math.max(-.30,Math.min(.30,rr/.08*.14)))}return div(Array.from({length:sz},()=>wg(w,r)),r,80)}
-function select(pool,sz,r){let P=[];pool=[...pool];while(P.length<sz&&pool.length){let bi=0,bs=-1e9;for(let i=0;i<pool.length;i++){let sc=0;for(let h of P)sc-=Math.max(0,hit(pool[i],h)-9)*6;if(sc>bs){bs=sc;bi=i}}P.push(pool.splice(bi,1)[0])}return div(P,r,60)}
-const IDS=['R1','R2','R3','R4','R5','R6'];
-function ports(sz,idx,seed,contest){
- let a=m10(sz,rng(mix(seed,contest,101))),b=m10(sz,rng(mix(seed,contest,102)),.15),x5=m5(sz,idx,rng(mix(seed,contest,105))),x6=m6(sz,idx,rng(mix(seed,contest,106)));
- let c2=select([...x5,...x6],sz,rng(mix(seed,contest,203))),c2no5=select([...x6],sz,rng(mix(seed,contest,204))),c2no6=select([...x5],sz,rng(mix(seed,contest,205))),blend=select([...a,...c2],sz,rng(mix(seed,contest,206)));
- return {R1:a,R2:b,R3:c2,R4:c2no5,R5:c2no6,R6:blend}
-}
-function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
-function psign(d,seed,B=500){let obs=mean(d),r=rng(seed),ge=1;for(let b=0;b<B;b++){let s=0;for(let x of d)s+=(r()<.5?-x:x);if(s/d.length>=obs)ge++}return ge/(B+1)}
-function holm(rows){let a=[...rows].sort((x,y)=>x.p-y.p),active=true;for(let i=0;i<a.length;i++){let th=.05/(a.length-i);a[i].holm=active&&a[i].p<=th;if(!a[i].holm)active=false}}
-async function stage(n,alive,sz,rc,baseSeed){
- let seeds=[baseSeed,mix(baseSeed,17,1),mix(baseSeed,31,2),mix(baseSeed,47,3)], allSeed=[];
- for(let si=0;si<seeds.length;si++){
-  let seed=seeds[si],start=H.length-n,rec={};alive.forEach(id=>rec[id]=[]);
-  for(let j=0;j<n;j++){if(ABORT)throw Error('Execução interrompida.');let idx=start+j,cur=H[idx],P=ports(sz,idx,seed,cur.concurso),rr=0;for(let k=0;k<rc;k++){let r=rng(mix(seed,cur.concurso,1000+k)),RP=Array.from({length:sz},()=>game(r));rr+=evalP(RP,cur.dezenas)}let rp=rr/rc;for(let id of alive)rec[id].push({c:evalP(P[id],cur.dezenas),r:rp,d:evalP(P[id],cur.dezenas)-rp});progress(si*n+j+1,n*4,'Gate '+n+' • seed '+(si+1)+'/4 • '+(j+1)+'/'+n);await yieldUI()}
-  allSeed.push(alive.map((id,i)=>({id,seedIndex:si,c:mean(rec[id].map(x=>x.c)),r:mean(rec[id].map(x=>x.r)),delta:mean(rec[id].map(x=>x.d)),p:psign(rec[id].map(x=>x.d),mix(seed,n,i+1))})))
- }
- return alive.map(id=>{let v=allSeed.flat().filter(x=>x.id===id),d=v.map(x=>x.delta);return{id,gate:n,seedsPositive:d.filter(x=>x>0).length,c:mean(v.map(x=>x.c)),r:mean(v.map(x=>x.r)),delta:mean(d),p:psign(d, mix(baseSeed,n,id.charCodeAt(1)),1200),seedRows:v}})
-}
-function table(all,alive){let latest={};for(let r of all)latest[r.id]=r;$('body').innerHTML=Object.values(latest).sort((a,b)=>b.delta-a.delta).map(x=>`<tr><td>${x.id}</td><td>${x.gate}</td><td>${x.seedsPositive}/4</td><td>${(x.c*100).toFixed(2)}%</td><td>${(x.r*100).toFixed(2)}%</td><td>${(x.delta*100).toFixed(3)}</td><td>${x.p.toFixed(4)}</td><td>${alive.includes(x.id)?'SURVIVE':'DROP'}</td></tr>`).join('')}
-async function run(){if(H.length<700){alert('Importe o histórico completo.');return}ABORT=false;$('run').disabled=true;$('stop').disabled=false;let sz=Math.max(10,Math.min(40,+$('games').value||20)),rc=Math.max(20,Math.min(80,+$('randoms').value||30)),seed=(+$('seed').value||26092026)>>>0,alive=[...IDS],all=[];CACHE.clear();log('2.6 iniciado: foco M10/C2 com 4 seeds.');try{for(let n of [150,300,600]){let rows=await stage(n,alive,sz,rc,seed);all.push(...rows);if(n===150)alive=rows.filter(x=>x.delta>0).map(x=>x.id);else if(n===300)alive=rows.filter(x=>x.delta>0&&x.seedsPositive>=3).map(x=>x.id);else{holm(rows);alive=rows.filter(x=>x.delta>0&&x.seedsPositive>=3&&x.holm).map(x=>x.id)}table(all,alive);log('Gate '+n+': '+alive.length+' sobreviventes.');if(!alive.length)break}
- let lr={};for(let r of all)lr[r.id]=r;let r3=lr.R3,r4=lr.R4,r5=lr.R5;if(r3&&r4&&r5)$('ablation').innerHTML=`C2 completo: ${(r3.delta*100).toFixed(3)} pp • sem M5: ${(r4.delta*100).toFixed(3)} pp • sem M6: ${(r5.delta*100).toFixed(3)} pp.`;
- STATE={at:new Date().toISOString(),sz,rc,seed,alive,rows:all};localStorage.setItem('2m26_state',JSON.stringify(STATE));if(alive.length){$('status').textContent='HOLD';$('status').className='kpi warn';$('reason').textContent='Sobreviventes replicados: '+alive.join(', ')+'. Próximo passo é freeze prospectivo.'}else{$('status').textContent='NO BET';$('status').className='kpi bad';$('reason').textContent='ALL DROP na replicação focada 2.6.'}progress(1,1,'Concluído');log('Execução concluída.')}catch(e){log(e.message);$('phase').textContent=e.message}finally{$('run').disabled=false;$('stop').disabled=true}}
-$('run').onclick=run;$('stop').onclick=()=>{ABORT=true;$('stop').disabled=true;log('Parada solicitada.')};
-$('export').onclick=()=>{let o={app:'2 Milhões 2.6 Focused Robust Swarm',history:H.length,state:STATE,ledger:$('log').textContent},b=new Blob([JSON.stringify(o,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='2_MILHOES_2_6_FOCUSED_SWARM_LEDGER.json';a.click();URL.revokeObjectURL(a.href)}
-try{H=JSON.parse(localStorage.getItem('2m26_hist')||'[]');STATE=JSON.parse(localStorage.getItem('2m26_state')||'null')}catch{}render()
-</script></body></html>
+function hit(a,b){let s=new Set(a),z=0;for(let x of b)if(s.has(x))z++;return z}function ev(P,d){return P.some(g=>hit(g,d)>=13)?1:0}
+function pen(P){let q=0;for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)q+=Math.max(0,hit(P[i],P[j])-9)**2;return q}
+function div(P,r,st=70){let s=pen(P);for(let z=0;z<st;z++){let i=Math.floor(r()*P.length),o=P[i],g=game(r);P[i]=g;let n=pen(P);if(n<=s)s=n;else P[i]=o}return P}
+function stats(i){if(C.has(i))return C.get(i);let f=[60,180,600].map(()=>Array(26).fill(0));for(let j=Math.max(0,i-600);j<i;j++)for(let n of H[j].dezenas){if(j>=i-60)f[0][n]++;if(j>=i-180)f[1][n]++;f[2][n]++}let o={f,n:[Math.min(60,i),Math.min(180,i),Math.min(600,i)]};C.set(i,o);return o}
+function wg(w,r){return Array.from({length:25},(_,i)=>[Math.log(w[i+1])-Math.log(-Math.log(Math.max(1e-9,r()))),i+1]).sort((a,b)=>b[0]-a[0]).slice(0,15).map(x=>x[1]).sort((a,b)=>a-b)}
+function sel(pool,z,r){let P=[];pool=[...pool];while(P.length<z){let bi=0,bs=-1e9;for(let i=0;i<pool.length;i++){let sc=P.reduce((s,h)=>s-Math.max(0,hit(pool[i],h)-9)*6,0);if(sc>bs){bs=sc;bi=i}}P.push(pool.splice(bi,1)[0])}return div(P,r)}
+function R6(z,i,s,c){let r=rng(mix(s,c,101)),best,bs=1e9;for(let t=0;t<12;t++){let P=Array.from({length:z},()=>game(r)),v=pen(P);if(v<bs){bs=v;best=P}}let A=div(best,r,130),S=stats(i),pool=[];for(let mode=0;mode<2;mode++){let w=Array(26).fill(1);for(let n=1;n<=25;n++){let a=S.n[0]?S.f[0][n]/S.n[0]:.6,b=S.n[1]?S.f[1][n]/S.n[1]:.6,d=S.n[2]?S.f[2][n]/S.n[2]:.6,v=mode?(.5*(a-.6)+.3*(b-.6)+.2*(d-.6)):(b-.6);w[n]=Math.exp(Math.max(-.3,Math.min(.3,v/.08*.14)))}let q=rng(mix(s,c,105+mode));pool.push(...div(Array.from({length:z},()=>wg(w,q)),q))}let C2=sel(pool,z,rng(mix(s,c,203)));return sel([...A,...C2],z,rng(mix(s,c,206)))}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}function ps(d,s,B=1200){let o=mean(d),r=rng(s),ge=1;for(let b=0;b<B;b++){let x=0;for(let v of d)x+=(r()<.5?-v:v);if(x/d.length>=o)ge++}return ge/(B+1)}
+async function run(){if(H.length<1000){alert('Importe o histórico completo.');return}STOP=false;$('run').disabled=true;$('stop').disabled=false;C.clear();let z=+$('games').value||20,rc=+$('randoms').value||40,b=+$('seed').value||27092026,seeds=[b,11,23,37,53,71,89,107].map((x,i)=>i?mix(b,x,i):b),N=600,start=H.length-N,all=[],per=[];L('Falsificação: 8 seeds x 600 concursos.');try{for(let si=0;si<8;si++){let D=[],ca=[],ra=[];for(let j=0;j<N;j++){if(STOP)throw Error('Interrompido');let i=start+j,d=H[i],P=R6(z,i,seeds[si],d.concurso),rv=0;for(let k=0;k<rc;k++){let q=rng(mix(seeds[si],d.concurso,1000+k));rv+=ev(Array.from({length:z},()=>game(q)),d.dezenas)}let rr=rv/rc,cc=ev(P,d.dezenas);D.push(cc-rr);all.push(cc-rr);ca.push(cc);ra.push(rr);let done=si*N+j+1,p=Math.round(done/(8*N)*100);$('fill').style.width=p+'%';$('pct').textContent=p+'%';$('phase').textContent='Seed '+(si+1)+'/8 • '+(j+1)+'/600';await Y()}per.push({c:mean(ca),r:mean(ra),d:mean(D)});L('Seed '+(si+1)+': Δ '+(mean(D)*100).toFixed(3)+' pp')}let blocks=[];for(let q=0;q<3;q++){let v=[];for(let si=0;si<8;si++)v.push(...all.slice(si*N+q*200,si*N+(q+1)*200));blocks.push(mean(v))}let ca=mean(per.map(x=>x.c)),ra=mean(per.map(x=>x.r)),dd=mean(per.map(x=>x.d)),sp=per.filter(x=>x.d>0).length,bp=blocks.filter(x=>x>0).length,pv=ps(all,mix(b,999,1)),pass=dd>0&&sp>=6&&bp>=2&&pv<.05;$('res').innerHTML=`<tr><td>R6 frozen</td><td>${(ca*100).toFixed(3)}%</td><td>${(ra*100).toFixed(3)}%</td><td>${(dd*100).toFixed(3)}</td><td>${sp}/8</td><td>${bp}/3</td><td>${pv.toFixed(4)}</td></tr>`;$('blocks').textContent=blocks.map((x,i)=>'Bloco '+(i+1)+': '+(x*100).toFixed(3)+' pp').join(' • ');STATE={ca,ra,dd,sp,bp,pv,blocks,per,pass};localStorage.setItem('2m27s',JSON.stringify(STATE));if(pass){$('status').textContent='HOLD';$('status').style.color='#f7c948';$('reason').textContent='R6 sobreviveu historicamente. Próximo passo: freeze prospectivo.';L('HOLD. Não apostar.')}else{$('reason').textContent='R6 falhou em pelo menos um critério. NO BET.';L('Falsificação não aprovada. NO BET.')}}catch(e){L(e.message)}finally{$('run').disabled=false;$('stop').disabled=true}}
+$('run').onclick=run;$('stop').onclick=()=>STOP=true;$('export').onclick=()=>{let a=document.createElement('a'),b=new Blob([JSON.stringify({app:'2 Milhões 2.7',state:STATE,ledger:$('log').textContent},null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='2_MILHOES_2_7_LEDGER.json';a.click()}
+try{H=JSON.parse(localStorage.getItem('2m27h')||'[]')}catch{}render()
+</script></main>

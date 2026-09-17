@@ -1,59 +1,27 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>2 Milhões 3.4 — Exact Outcome Distribution Engine</title>
+<title>2 Milhões 3.5 — Exact Same-Budget Portfolio Duel</title>
 <style>
-:root{--bg:#06101d;--card:#0d1b2e;--line:#294a69;--txt:#f5f7fb;--mut:#9fb0c6;--bad:#ff687f;--ok:#2bd083}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{padding:32px 21px;background:#0c1930}.wrap{max-width:900px;margin:auto;padding:14px 14px 80px}.card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:18px;margin:14px 0}
-h1{font-size:29px;line-height:1.15;margin:0 0 12px}h2{font-size:24px}.sub,.note{color:var(--mut);line-height:1.5}.badge{display:inline-block;border:1px solid #3a6087;border-radius:999px;padding:7px 10px;margin:3px;font-size:12px}.status{font-size:38px;font-weight:900;color:var(--bad)}
-label{display:block;font-size:13px;color:#d3deeb;margin:9px 0 5px}select,input,textarea{width:100%;padding:12px;border-radius:12px;background:#071321;color:#fff;border:1px solid #365a7d;font-size:16px}textarea{min-height:120px;font-family:monospace;font-size:12px}
-button{width:100%;padding:15px;border:0;border-radius:14px;margin-top:10px;background:#117a49;color:#fff;font-size:17px;font-weight:800}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{background:#081727;border:1px solid #2c4d6d;border-radius:16px;padding:13px}.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--mut)}
-table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 5px;border-bottom:1px solid #233f5b;text-align:right}th:first-child,td:first-child{text-align:left}.ok{color:var(--ok)}
-</style></head><body><header><h1>2 Milhões 3.4 — Exact Outcome Distribution Engine</h1><div class="sub">3.268.760 resultados • sem rho artificial • distribuição exata • 18/19 determinísticos • carteira concreta de 15 • NO BET</div></header><div class="wrap">
-
-<section class="card"><div class="badge">3.3 RISCO MODELADO</div><div class="badge">ρ ARTIFICIAL REMOVIDO</div><div class="badge">EXACT ENUMERATION</div><h2>Estado</h2><div class="status">NO BET</div><p class="note">A 3.4 enumera todos os C(25,15)=3.268.760 sorteios possíveis. Para cada resultado, calcula o pagamento total produzido pela arquitetura. Não usa histórico nem hipótese de correlação.</p></section>
-
-<section class="card"><h2>Arquitetura</h2><label>Teste</label><select id="mode"><option value="18">18 números concentrados</option><option value="19">19 números concentrados</option><option value="15">Carteira concreta de jogos de 15</option></select>
-<label>Conjunto concentrado (18 ou 19 dezenas, separadas por espaço)</label><input id="setnums" value="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18">
-<label>Carteira concreta de 15 — uma aposta por linha</label><textarea id="portfolio" placeholder="01 02 03 ... 15&#10;..."></textarea>
-<label>Prêmio 14 — cenário</label><input id="v14" type="number" value="1800"><label>Prêmio 15 — cenário</label><input id="v15" type="number" value="1500000">
-<button id="run">Executar enumeração exata</button><p class="note">Em 18/19, o motor gera internamente todas as combinações de 15 contidas no conjunto. Para carteira simples, cole os jogos reais. O cálculo pode levar alguns segundos no iPhone.</p></section>
-
-<section class="card" id="out" style="display:none"><h2>Distribuição exata</h2><div class="grid">
-<div class="kpi"><b id="tickets">—</b><span>combinações de 15</span></div><div class="kpi"><b id="cost">—</b><span>custo equivalente</span></div>
-<div class="kpi"><b id="ev">—</b><span>retorno médio exato</span></div><div class="kpi"><b id="roi">—</b><span>ROI médio / custo</span></div>
-</div>
-<div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Faixa de retorno</th><th>Resultados</th><th>Probabilidade</th></tr></thead><tbody id="dist"></tbody></table></div>
-<h2>Ocorrência de prêmio</h2><div style="overflow:auto"><table><thead><tr><th>Condição</th><th>Probabilidade exata</th></tr></thead><tbody id="hits"></tbody></table></div>
-<p class="note" id="audit"></p></section>
-
-<section class="card"><h2>Gate 3.4</h2><div class="badge">universo completo</div><div class="badge">sem Monte Carlo</div><div class="badge">sem correlação assumida</div><div class="badge">mesmo pagamento</div><p class="note">A 3.4 mede distribuição e risco exatos. Ela não transforma geometria em previsão. Qualquer promoção futura exige vantagem econômica externa demonstrável ou um objetivo de risco explicitamente definido.</p></section></div>
-
-<script>
-const TOTAL=3268760, PRICE=3.5, fixed={11:7,12:14,13:35};
-function brl(x){return x.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2})}
-function pc(n){return (100*n/TOTAL).toFixed(5)+"%"}
-function comb(arr,k){let out=[],c=[];function r(s){if(c.length===k){out.push([...c]);return}for(let i=s;i<=arr.length-(k-c.length);i++){c.push(arr[i]);r(i+1);c.pop()}}r(0);return out}
-function mask(a){let m=0;for(const x of a)m|=(1<<(x-1));return m>>>0}
-function pop(x){x=x>>>0;x=x-((x>>>1)&0x55555555);x=(x&0x33333333)+((x>>>2)&0x33333333);return (((x+(x>>>4))&0x0F0F0F0F)*0x01010101)>>>24}
-function parseLine(s){return [...new Set((s.match(/\d+/g)||[]).map(Number).filter(x=>x>=1&&x<=25))]}
-function allDraws(cb){let a=[];function r(start,left,m){if(!left){cb(m>>>0);return}for(let x=start;x<=25-left+1;x++)r(x+1,left-1,(m|(1<<(x-1)))>>>0)}r(1,15,0)}
-run.onclick=()=>{
- let md=mode.value,v14=Math.max(0,+document.getElementById("v14").value||0),v15=Math.max(0,+document.getElementById("v15").value||0),games=[];
- if(md==="18"||md==="19"){let n=+md,a=parseLine(setnums.value);if(a.length!==n){alert("Informe exatamente "+n+" dezenas.");return}games=comb(a,15).map(mask)}
- else {let lines=portfolio.value.split(/\n+/).map(parseLine).filter(a=>a.length);if(!lines.length||lines.some(a=>a.length!==15)){alert("Cada linha deve conter exatamente 15 dezenas.");return}games=[...new Set(lines.map(mask))]}
- let C=games.length, budget=C*PRICE, bins=[0,0,0,0,0,0,0], any={11:0,12:0,13:0,14:0,15:0},sum=0,seen=0;
- run.disabled=true;run.textContent="Calculando universo completo…";
- setTimeout(()=>{allDraws(d=>{
-   let payout=0,h11=false,h12=false,h13=false,h14=false,h15=false;
-   for(const g of games){let h=pop(d&g);if(h===15){payout+=v15;h15=h14=h13=h12=h11=true}else if(h===14){payout+=v14;h14=h13=h12=h11=true}else if(h===13){payout+=35;h13=h12=h11=true}else if(h===12){payout+=14;h12=h11=true}else if(h===11){payout+=7;h11=true}}
-   if(h11)any[11]++;if(h12)any[12]++;if(h13)any[13]++;if(h14)any[14]++;if(h15)any[15]++;
-   let q=payout/budget;let bi=q<=.25?0:q<.5?1:q<1?2:q<2?3:q<5?4:q<10?5:6;bins[bi]++;sum+=payout;seen++;
- });
- tickets.textContent=C.toLocaleString("pt-BR");cost.textContent=brl(budget);let mean=sum/TOTAL;ev.textContent=brl(mean);roi.textContent=(100*mean/budget).toFixed(2)+"%";
- let names=["≤25%","25–<50%","50–<100%","100–<200%","2–<5×","5–<10×","≥10×"];dist.innerHTML=bins.map((x,i)=>`<tr><td>${names[i]}</td><td>${x.toLocaleString("pt-BR")}</td><td>${pc(x)}</td></tr>`).join("");
- hits.innerHTML=[11,12,13,14,15].map(h=>`<tr><td>≥${h} em pelo menos uma combinação</td><td>${pc(any[h])}</td></tr>`).join("");
- audit.innerHTML=`Auditados <b>${seen.toLocaleString("pt-BR")}</b> de ${TOTAL.toLocaleString("pt-BR")} resultados possíveis. Resultado determinístico para a arquitetura e valores de prêmio informados.`;
- out.style.display="block";run.disabled=false;run.textContent="Executar enumeração exata";
- },50)
-}
+:root{--bg:#06101d;--card:#0d1b2e;--line:#294a69;--txt:#f5f7fb;--mut:#9fb0c6;--bad:#ff687f;--ok:#2bd083;--warn:#ffd166}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{padding:34px 21px;background:#0c1930}.wrap{max-width:900px;margin:auto;padding:14px 14px 80px}.card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:18px;margin:14px 0}h1{font-size:29px;line-height:1.15;margin:0 0 12px}h2{font-size:24px}.sub,.note{color:var(--mut);line-height:1.5}.badge{display:inline-block;border:1px solid #3a6087;border-radius:999px;padding:7px 10px;margin:3px;font-size:12px}.status{font-size:38px;font-weight:900;color:var(--bad)}label{display:block;font-size:13px;color:#d3deeb;margin:9px 0 5px}input{width:100%;padding:12px;border-radius:12px;background:#071321;color:#fff;border:1px solid #365a7d;font-size:16px}button{width:100%;padding:15px;border:0;border-radius:14px;margin-top:10px;background:#117a49;color:#fff;font-size:17px;font-weight:800}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{background:#081727;border:1px solid #2c4d6d;border-radius:16px;padding:13px}.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--mut)}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 5px;border-bottom:1px solid #233f5b;text-align:right}th:first-child,td:first-child{text-align:left}.ok{color:var(--ok);font-weight:800}.warn{color:var(--warn)}progress{width:100%;height:18px;margin-top:10px}</style></head><body>
+<header><h1>2 Milhões 3.5 — Exact Same-Budget Portfolio Duel</h1><div class="sub">19 concentrado × 3.876 jogos simples distribuídos • mesmo custo • união exata 13+/14+/15 • controle Random • NO BET</div></header><div class="wrap">
+<section class="card"><div class="badge">3.4 ENUMERAÇÃO CONCLUÍDA</div><div class="badge">19 = 3.876 SIMPLES</div><div class="badge">MESMO ORÇAMENTO</div><h2>Estado</h2><div class="status">NO BET</div><p class="note">A 3.5 não tenta prever dezenas. Ela mede exatamente a cobertura de pelo menos um prêmio 13+, 14+ e 15 quando o mesmo número de combinações é concentrado em 19 dezenas ou distribuído pelo espaço 15/25.</p></section>
+<section class="card"><h2>Duelo</h2><label>Quantidade de jogos simples</label><input id="N" type="number" value="3876" min="1" max="10000"><label>Seed congelada OMEGA</label><input id="seed" type="number" value="35092026"><button id="run">Construir e executar duelo exato</button><progress id="prog" max="100" value="0" style="display:none"></progress><p class="note" id="phase">O motor gera uma carteira OMEGA distribuída e um controle Random de mesmo orçamento. A cobertura 13+ é calculada por união exata das vizinhanças de cada jogo; não usa Monte Carlo.</p></section>
+<section class="card" id="out" style="display:none"><h2>Resultado exato</h2><div class="grid"><div class="kpi"><b id="cost">—</b><span>orçamento comum</span></div><div class="kpi"><b id="cnt">—</b><span>jogos por arquitetura</span></div><div class="kpi"><b id="evnote">IGUAL</b><span>EV por linearidade*</span></div><div class="kpi"><b id="unique">—</b><span>OMEGA jogos únicos</span></div></div>
+<div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Arquitetura</th><th>13+</th><th>14+</th><th>15</th></tr></thead><tbody id="tbl"></tbody></table></div>
+<h2>Diferença de cobertura</h2><div class="grid"><div class="kpi"><b id="d13">—</b><span>OMEGA − 19 concentrado</span></div><div class="kpi"><b id="dr13">—</b><span>OMEGA − Random</span></div></div><p class="note" id="audit"></p></section>
+<section class="card"><h2>Gate 3.5</h2><div class="badge">mesmo orçamento</div><div class="badge">13+/14+/15 exatos</div><div class="badge">Random pareado</div><div class="badge">sem histórico</div><p class="note"><b>Importante:</b> maior cobertura de “pelo menos um 13+” não significa maior valor esperado. Com prêmios fixos e sorteio justo, 3.876 jogos simples distintos têm o mesmo EV esperado independentemente da geometria. A geometria altera principalmente concentração, multiplicidade e frequência de ocorrência. A distribuição monetária completa 11–15 de uma carteira arbitrária de 3.876 jogos não é calculada nesta versão móvel porque exigiria uma enumeração muito mais pesada; a 3.5 mantém o teste exato apenas onde é computacionalmente auditável no iPhone.</p></section>
+</div><script>
+const TOTAL=3268760,PRICE=3.5;function brl(x){return x.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}function pc(x){return (100*x/TOTAL).toFixed(5)+'%'}
+const C=Array.from({length:26},()=>Array(16).fill(0));for(let n=0;n<=25;n++){C[n][0]=1;for(let k=1;k<=Math.min(n,15);k++)C[n][k]=(n?C[n-1][k-1]+C[n-1][k]:0)}
+function rank(m){let r=0,j=1;for(let v=1;v<=25;v++)if(m&(1<<(v-1))){r+=C[v-1][j];j++}return r}
+function arr(m){let a=[];for(let i=1;i<=25;i++)if(m&(1<<(i-1)))a.push(i);return a}function mask(a){let m=0;for(const x of a)m|=1<<(x-1);return m>>>0}
+function rng(s){let x=s>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}}
+function randomTicket(R){let a=Array.from({length:25},(_,i)=>i+1);for(let i=24;i>0;i--){let j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return mask(a.slice(0,15))}
+function pop(x){x>>>=0;x=x-((x>>>1)&0x55555555);x=(x&0x33333333)+((x>>>2)&0x33333333);return(((x+(x>>>4))&0x0F0F0F0F)*0x01010101)>>>24}
+function buildRandom(n,R){let s=new Set;while(s.size<n)s.add(randomTicket(R));return [...s]}
+function buildOmega(n,R){let out=[],S=new Set,freq=Array(25).fill(0),pool=90;while(out.length<n){let best=0,bs=1e9;for(let q=0;q<pool;q++){let m=randomTicket(R);if(S.has(m))continue;let a=arr(m),bal=a.reduce((z,x)=>z+freq[x-1],0);let near=0;let start=Math.max(0,out.length-180);for(let i=start;i<out.length;i++){let h=pop(m&out[i]);if(h>=12)near+=1000;if(h===11)near+=30}let sc=near+bal*.08+R()*.01;if(sc<bs){bs=sc;best=m}}if(!best)continue;S.add(best);out.push(best);for(const x of arr(best))freq[x-1]++}return out}
+function cover(games,maxD){let bits=new Uint8Array(TOTAL),u=0;for(let gi=0;gi<games.length;gi++){let A=arr(games[gi]),inside=new Set(A),B=[];for(let x=1;x<=25;x++)if(!inside.has(x))B.push(x);let add=m=>{let r=rank(m);if(!bits[r]){bits[r]=1;u++}};add(games[gi]);for(let i=0;i<15;i++)for(let b=0;b<10;b++)add((games[gi]&~(1<<(A[i]-1))|(1<<(B[b]-1)))>>>0);if(maxD>=2)for(let i=0;i<14;i++)for(let j=i+1;j<15;j++)for(let b=0;b<9;b++)for(let c=b+1;c<10;c++)add((games[gi]&~(1<<(A[i]-1))&~(1<<(A[j]-1))|(1<<(B[b]-1))|(1<<(B[c]-1)))>>>0)}return u}
+function concentrated19(){let a=Array.from({length:19},(_,i)=>i+1),o=[];function rec(s,c){if(c.length===15){o.push(mask(c));return}for(let i=s;i<=19-(15-c.length);i++){c.push(a[i]);rec(i+1,c);c.pop()}}rec(0,[]);return o}
+async function tick(p,t){prog.value=p;phase.textContent=t;await new Promise(r=>setTimeout(r,30))}
+run.onclick=async()=>{let n=Math.max(1,Math.min(10000,+N.value||3876));if(n!==3876){if(!confirm('Para o duelo oficial 19×15 use 3.876 jogos. Continuar com '+n+'?'))return}run.disabled=true;prog.style.display='block';out.style.display='none';let s=(+seed.value||35092026)>>>0;await tick(5,'Construindo 19 concentrado…');let c19=n===3876?concentrated19():buildRandom(n,rng(19));await tick(15,'Construindo OMEGA distribuído…');let om=buildOmega(n,rng(s));await tick(30,'Construindo Random pareado…');let rd=buildRandom(n,rng(s^0x9e3779b9));await tick(42,'Cobertura exata 13+ — 19 concentrado…');let c13=cover(c19,2);await tick(55,'Cobertura exata 13+ — OMEGA…');let o13=cover(om,2);await tick(68,'Cobertura exata 13+ — Random…');let r13=cover(rd,2);await tick(78,'Cobertura exata 14+…');let c14=cover(c19,1),o14=cover(om,1),r14=cover(rd,1);await tick(92,'Finalizando auditoria…');let c15=new Set(c19).size,o15=new Set(om).size,r15=new Set(rd).size;
+cost.textContent=brl(n*PRICE);cnt.textContent=n.toLocaleString('pt-BR');unique.textContent=o15.toLocaleString('pt-BR');tbl.innerHTML=`<tr><td>19 concentrado</td><td>${pc(c13)}</td><td>${pc(c14)}</td><td>${pc(c15)}</td></tr><tr><td>OMEGA distribuído</td><td class="ok">${pc(o13)}</td><td>${pc(o14)}</td><td>${pc(o15)}</td></tr><tr><td>Random pareado</td><td>${pc(r13)}</td><td>${pc(r14)}</td><td>${pc(r15)}</td></tr>`;d13.textContent=((o13-c13)*100/TOTAL).toFixed(5)+' pp';dr13.textContent=((o13-r13)*100/TOTAL).toFixed(5)+' pp';audit.innerHTML=`Cobertura calculada por união exata no universo de <b>${TOTAL.toLocaleString('pt-BR')}</b> resultados. Para 15 acertos, qualquer carteira com ${n.toLocaleString('pt-BR')} jogos distintos cobre exatamente ${n.toLocaleString('pt-BR')} resultados. O controle Random é uma carteira congelada de mesmo tamanho; não é uma distribuição de muitos controles.`;out.style.display='block';await tick(100,'Concluído.');run.disabled=false;run.textContent='Executar novamente'}
 </script></body></html>

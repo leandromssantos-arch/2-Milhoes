@@ -67,6 +67,21 @@ pre{white-space:pre-wrap;background:#071321;border:1px solid #294a69;padding:12p
 <button class="secondary" id="copy">Copiar carteira</button>
 </section>
 
+
+<section class="card">
+<h2>Registrar na CAIXA</h2>
+<p class="note">A CAIXA permite apostar pelo App Loterias CAIXA e pelo Portal Loterias CAIXA, mas não há API pública documentada para o ATLAS preencher/registrar automaticamente estes jogos. Por segurança, o ATLAS prepara cada aposta e abre somente o canal oficial; a seleção, conferência e pagamento permanecem com você na CAIXA.</p>
+<div class="grid">
+<div class="kpi"><b id="handoffCount">0/0</b><span>jogo selecionado</span></div>
+<div class="kpi"><b id="handoffCost">R$ 0,00</b><span>total da carteira</span></div>
+</div>
+<label>Jogo para registrar</label>
+<select id="handoffGame"><option>Execute o Gate ATLAS primeiro</option></select>
+<pre id="handoffNumbers">—</pre>
+<button id="copyOne" class="secondary">Copiar dezenas deste jogo</button>
+<button id="openCaixa">Abrir Lotofácil oficial CAIXA</button>
+<p class="note">Fluxo recomendado: copiar → abrir CAIXA → marcar as 15 dezenas → conferir → efetivar. O ATLAS não recebe CPF, senha, Pix/cartão e não efetiva apostas.</p>
+</section>
 <section class="card"><h2>Regras de integridade 4.0</h2>
 <p class="note">1) Não usar frequência histórica para escolher dezenas. 2) Não promover por um único Random. 3) Mesmo orçamento em todos os controles. 4) 15 acertos depende apenas da quantidade de jogos distintos. 5) Cobertura maior de 13+/14+ não cria valor esperado positivo por si só. 6) A carteira deve ser congelada antes de qualquer teste prospectivo. 7) Prêmios 14/15 continuam dependentes do rateio real; sem dados confiáveis de comportamento dos apostadores, Anti-Crowd permanece fora do motor.</p>
 </section>
@@ -125,9 +140,28 @@ run.onclick=async()=>{
  explain.innerHTML=pass
  ?`ATLAS ficou no extremo superior dos ${k} controles Random deste teste. Isso autoriza <b>congelar para validação prospectiva</b>, não afirmar previsão nem lucro.`
  :`ATLAS não demonstrou separação suficiente dos controles Random. A carteira não deve ser promovida.`;
- portfolio.textContent=atlas.map((m,i)=>String(i+1).padStart(4,'0')+'  '+fmtGame(m)).join('\n');
+ portfolio.textContent=atlas.map((m,i)=>String(i+1).padStart(4,'0')+'  '+fmtGame(m)).join('\n'); loadHandoff(atlas);
  out.style.display='block'; portfolioCard.style.display='block'; prog.value=100; phase.textContent='Concluído.';
  run.disabled=false; run.textContent='Executar novamente';
 }
 copy.onclick=async()=>{try{await navigator.clipboard.writeText(portfolio.textContent);copy.textContent='Carteira copiada'}catch(e){copy.textContent='Selecione e copie manualmente'}}
+
+function loadHandoff(atlas){
+  handoffGame.innerHTML=atlas.map((m,i)=>`<option value="${i}">Jogo ${String(i+1).padStart(4,'0')}</option>`).join('');
+  handoffGame._atlas=atlas;
+  handoffCost.textContent=brl(atlas.length*PRICE);
+  showHandoff();
+}
+function showHandoff(){
+  let a=handoffGame._atlas;if(!a||!a.length)return;
+  let i=+handoffGame.value||0;
+  handoffCount.textContent=`${i+1}/${a.length}`;
+  handoffNumbers.textContent=fmtGame(a[i]);
+}
+handoffGame.onchange=showHandoff;
+copyOne.onclick=async()=>{
+  let t=handoffNumbers.textContent;
+  try{await navigator.clipboard.writeText(t);copyOne.textContent='Dezenas copiadas'}catch(e){copyOne.textContent='Selecione e copie manualmente'}
+};
+openCaixa.onclick=()=>window.open('https://loterias.caixa.gov.br/paginas/lotofacil.aspx','_blank','noopener');
 </script></body></html>
